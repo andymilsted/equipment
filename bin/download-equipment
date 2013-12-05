@@ -847,9 +847,10 @@ function uniquip_to_graph( &$c, $items )
 			# we are *not* automatically assuming the building belongs to the uni, just in case
 		}
 		
-		if( @$item["Corrections"] != "" )
+		if( @trim($item["Corrections"]) != "" )
 		{
-			$graph->addCompressedTriple( $uri, "oo:corrections", strtolower($item["Corrections"]) );
+			$graph->addCompressedTriple( "{$uri}#record", "foaf:primaryTopic", $uri );
+			$graph->addCompressedTriple( "{$uri}#record", "oo:corrections", strtolower($item["Corrections"]) );
 		}
 
 		# fields not yet handled:
@@ -1089,7 +1090,11 @@ function processItemTurtle( $item )
 		$done[$contact->toString()] = true;
 		graphCopy( $item->g, $ig, $contact );
 	}
-
+	print "{$item}#record\n";
+	if( $item->g->resource( "{$item}#record") ) {
+		graphCopy( $item->g, $ig, $item->g->resource( "{$item}#record") );
+	}
+	
 	$itemid = itemCacheID( $item );
 	$file = itemCachePath( $itemid , "ttl");
 	file_put_contents( $file, $ig->serialize( "Turtle" ) ) or die("can't write file: $file" );
